@@ -1,11 +1,16 @@
 import React, { useContext, useEffect, useState } from "react";
 import { OrderContext } from "../../context/OrderContext";
 import axios from "axios";
+import ErrorBanner from "../../components/ErrorBanner";
 
 const CompletePage = ({ setStep }) => {
   const [orderData] = useContext(OrderContext);
   const [orderHistory, setOrderHistory] = useState([]);
   const [loarding, setLoarding] = useState(true);
+
+  const [error, setError] = useState(false);
+  const [errorInfo, setErrorInfo] = useState({});
+
   useEffect(() => {
     orderComplete(orderData);
   }, [orderData]);
@@ -21,15 +26,27 @@ const CompletePage = ({ setStep }) => {
       setLoarding(false);
     } catch (error) {
       console.error(error);
+      setErrorInfo(error);
+      setError(true);
     }
   };
 
-  const orderTable = orderHistory.map((item, key)=> (
+  const orderTable = orderHistory.map((item, key) => (
     <tr key={key}>
       <td>{item.orderNumber}</td>
       <td>{item.price}</td>
     </tr>
-    ))
+  ));
+
+  if (error) {
+    return (
+      <ErrorBanner
+        message={`Message:[${errorInfo.message}]
+      Code:[${errorInfo.code}]
+      주문에 실패했습니다.`}
+      />
+    );
+  }
 
   if (loarding) {
     return <div>...Loarding</div>;
